@@ -11,28 +11,22 @@ const dbConfig = {
     port: process.env.DB_PORT || 25060
 };
 
-// Initialize database
+// Initialize database (end connection after setup)
 async function initDB() {
     try {
-        console.log("🟢 Attempting to connect to database...");
+        console.log("Attempting to connect to database...");
         const connection = await mysql.createConnection(dbConfig);
-        console.log("✅ Database connected successfully!");
+        console.log("Database connected successfully!");
 
         await connection.execute(`
-            CREATE TABLE IF NOT EXISTS patient (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                first_name VARCHAR(50),
-                last_name VARCHAR(50),
-                age INT,
-                gender VARCHAR(10)
-            ) ENGINE=InnoDB;
+          TRUNCATE TABLE patient;          
         `);
-        console.log("✅ Table 'patient' verified/created.");
+        console.log("Table 'patient' verified/created.");
 
         await connection.end();
-        console.log("🔵 Database connection closed after initialization.");
+        console.log("Database connection closed after initialization.");
     } catch (err) {
-        console.error("❌ Database initialization error:", err.message);
+        console.error("Database initialization error:", err.message);
     }
 }
 await initDB();
@@ -52,7 +46,7 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const path = url.pathname;
 
-    console.log(`➡️ Received ${req.method} request on ${path}`);
+    console.log(`Received ${req.method} request on ${path}`);
 
     if (path === "/query") {
         if (req.method === "POST") {
@@ -62,21 +56,21 @@ const server = http.createServer(async (req, res) => {
                 try {
                     const data = JSON.parse(body);
                     const sql = data.query.trim();
-                    console.log("📤 Received SQL (POST):", sql);
+                    console.log("Received SQL (POST):", sql);
 
                     // Block dangerous SQL
                     if (/drop|update|delete|alter/i.test(sql)) {
-                        console.warn("🚫 Forbidden SQL command attempted:", sql);
+                        console.warn("Forbidden SQL command attempted:", sql);
                         res.writeHead(400, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: "Forbidden SQL command" }));
                         return;
                     }
 
                     const conn = await mysql.createConnection(dbConfig);
-                    console.log("🟢 Connected to DB for POST query.");
+                    console.log("Connected to DB for POST query.");
                     const [result] = await conn.execute(sql);
                     await conn.end();
-                    console.log("✅ POST query executed successfully.");
+                    console.log("POST query executed successfully.");
 
                     res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ success: true, result }));
@@ -88,10 +82,10 @@ const server = http.createServer(async (req, res) => {
             });
         } else if (req.method === "GET") {
             const sql = url.searchParams.get("query");
-            console.log("📤 Received SQL (GET):", sql);
+            console.log("Received SQL (GET):", sql);
 
             if (!sql || !/^select/i.test(sql)) {
-                console.warn("⚠️ Invalid or missing SELECT query.");
+                console.warn("Invalid or missing SELECT query.");
                 res.writeHead(400, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: "Only SELECT allowed for GET" }));
                 return;
@@ -99,10 +93,10 @@ const server = http.createServer(async (req, res) => {
 
             try {
                 const conn = await mysql.createConnection(dbConfig);
-                console.log("🟢 Connected to DB for GET query.");
+                console.log("Connected to DB for GET query.");
                 const [rows] = await conn.query(sql);
                 await conn.end();
-                console.log("✅ GET query executed successfully, rows returned:", rows.length);
+                console.log("GET query executed successfully, rows returned:", rows.length);
 
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify(rows));
@@ -122,4 +116,4 @@ const server = http.createServer(async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
