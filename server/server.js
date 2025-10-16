@@ -20,12 +20,14 @@ async function initDB() {
 
         // Table schema according to Amir
         await connection.execute(`
-          CREATE TABLE IF NOT EXISTS patient (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                first_name VARCHAR(50),
-                last_name VARCHAR(50),
-                dob DATE
-            ) ENGINE=InnoDB;        
+            DROP TABLE IF EXISTS patient;
+
+            CREATE TABLE IF NOT EXISTS patient (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    first_name VARCHAR(50),
+                    last_name VARCHAR(50),
+                    dob DATE
+                ) ENGINE=InnoDB;        
         `);
         console.log("Table 'patient' verified/created.");
 
@@ -87,8 +89,8 @@ const server = http.createServer(async (req, res) => {
                     res.writeHead(500, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ error: err.message }));
                 }
-            });        
-        // ----------------- GET ---------------------------
+            });
+            // ----------------- GET ---------------------------
         } else if (req.method === "GET") {
             const sql = url.searchParams.get("query");
             console.log("Received SQL (GET):", sql);
