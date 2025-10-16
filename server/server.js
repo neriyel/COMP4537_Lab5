@@ -23,7 +23,7 @@ async function initDB() {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 first_name VARCHAR(50),
                 last_name VARCHAR(50),
-                dob DATE,
+                dob DATE
             ) ENGINE=InnoDB;        
         `);
         console.log("Table 'patient' verified/created.");
