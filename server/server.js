@@ -18,17 +18,19 @@ async function initDB() {
         const connection = await mysql.createConnection(dbConfig);
         console.log("Database connected successfully!");
 
+        // Drop 'patient' table for a fresh start
+        await connection.execute(`DROP TABLE IF EXISTS patient;`);
+        
         // Table schema according to Amir
         await connection.execute(`
-            DROP TABLE IF EXISTS patient;
-
-            CREATE TABLE IF NOT EXISTS patient (
+                CREATE TABLE IF NOT EXISTS patient (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     first_name VARCHAR(50),
                     last_name VARCHAR(50),
                     dob DATE
-                ) ENGINE=InnoDB;        
-        `);
+                ) ENGINE=InnoDB;
+                `);
+
         console.log("Table 'patient' verified/created.");
 
         await connection.end();
