@@ -19,7 +19,12 @@ async function initDB() {
         console.log("Database connected successfully!");
 
         await connection.execute(`
-          TRUNCATE TABLE patient;          
+          CREATE TABLE IF NOT EXISTS patient (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                first_name VARCHAR(50),
+                last_name VARCHAR(50),
+                dob DATE,
+            ) ENGINE=InnoDB;        
         `);
         console.log("Table 'patient' verified/created.");
 
