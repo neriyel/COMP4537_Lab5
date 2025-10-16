@@ -18,6 +18,7 @@ async function initDB() {
         const connection = await mysql.createConnection(dbConfig);
         console.log("Database connected successfully!");
 
+        // Table schema according to Amir
         await connection.execute(`
           CREATE TABLE IF NOT EXISTS patient (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,7 +37,7 @@ async function initDB() {
 }
 await initDB();
 
-// Handle incoming requests
+// Handle incoming requests (CORS enabled)
 const server = http.createServer(async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -48,12 +49,14 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // Parse URL and path (Note: path is always '/query' for this lab)
     const url = new URL(req.url, `http://${req.headers.host}`);
     const path = url.pathname;
 
     console.log(`Received ${req.method} request on ${path}`);
 
     if (path === "/query") {
+        // ----------------- POST ---------------------------
         if (req.method === "POST") {
             let body = "";
             req.on("data", chunk => (body += chunk));
@@ -73,18 +76,19 @@ const server = http.createServer(async (req, res) => {
 
                     const conn = await mysql.createConnection(dbConfig);
                     console.log("Connected to DB for POST query.");
-                    const [result] = await conn.execute(sql);
+                    const [result] = await conn.execute(sql); // QUERYING THE DB
                     await conn.end();
                     console.log("POST query executed successfully.");
 
                     res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ success: true, result }));
                 } catch (err) {
-                    console.error("❌ Error processing POST query:", err.message);
+                    console.error("Error processing POST query:", err.message);
                     res.writeHead(500, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ error: err.message }));
                 }
-            });
+            });        
+        // ----------------- GET ---------------------------
         } else if (req.method === "GET") {
             const sql = url.searchParams.get("query");
             console.log("Received SQL (GET):", sql);
@@ -99,19 +103,19 @@ const server = http.createServer(async (req, res) => {
             try {
                 const conn = await mysql.createConnection(dbConfig);
                 console.log("Connected to DB for GET query.");
-                const [rows] = await conn.query(sql);
+                const [rows] = await conn.query(sql); // QUERYING THE DB
                 await conn.end();
                 console.log("GET query executed successfully, rows returned:", rows.length);
 
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify(rows));
             } catch (err) {
-                console.error("❌ Error processing GET query:", err.message);
+                console.error("Error processing GET query:", err.message);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: err.message }));
             }
         } else {
-            res.writeHead(405);
+            res.writeHead(405); // Method Not Allowed
             res.end();
         }
     } else {
