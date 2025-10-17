@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient DB Client</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <h1>Patient Database Client</h1>
+
+    <button id="insertBtn">Insert Patients</button>
+
+    <h3>Run Custom SQL Query</h3>
+    <textarea
+      id="queryInput"
+      placeholder="Type your SQL (SELECT or INSERT only)..."
+    ></textarea>
+    <button id="submitQuery">Submit Query</button>
+
+    <h3>Server Response:</h3>
+    <div id="response">No response yet.</div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
