@@ -1,4 +1,4 @@
-const serverUrl = "http://localhost:8080/query"; // your Node.js server address
+const serverUrl = "https://comp4537-lab5-2v5u4.ondigitalocean.app/query"; // your Node.js server address
 
       const insertBtn = document.getElementById("insertBtn");
       const submitBtn = document.getElementById("submitQuery");
